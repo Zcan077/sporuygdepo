@@ -1,42 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProfileScreen = ({ navigation, route }: any) => {
-  const { username, email, firstname, lastname } = route.params || {};
-  const [newUsername, setNewUsername] = useState(username);
-  const [newEmail, setNewEmail] = useState(email);
-  const [newFirstname, setNewFirstname] = useState(firstname);
-  const [newLastname, setNewLastname] = useState(lastname);
+const ProfileScreen: React.FC<{ navigation: any, route: any }> = ({ navigation, route }) => {
+  const { username, email, firstname, lastname } = route.params || {}; // Değerlerin tanımlı olup olmadığını kontrol et
+  const [newUsername, setNewUsername] = useState(username || '');
+  const [newEmail, setNewEmail] = useState(email || '');
+  const [newFirstname, setNewFirstname] = useState(firstname || '');
+  const [newLastname, setNewLastname] = useState(lastname || '');
+  const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [bmi, setBmi] = useState('');
+  const [sportsHistory, setSportsHistory] = useState('');
+  const [branch, setBranch] = useState('');
 
   useEffect(() => {
-    if (route.params) {
-      setNewUsername(route.params.username);
-      setNewEmail(route.params.email);
-      setNewFirstname(route.params.firstname);
-      setNewLastname(route.params.lastname);
+    if (height && weight) {
+      const bmiValue = (parseFloat(weight) / (parseFloat(height) / 100) ** 2).toFixed(2);
+      setBmi(bmiValue);
     }
-  }, [route.params]);
+  }, [height, weight]);
 
   const handleSave = async () => {
-    const updatedData = {
+    const updatedUserData = {
       username: newUsername,
       email: newEmail,
       firstname: newFirstname,
       lastname: newLastname,
+      age,
+      height,
+      weight,
+      bmi,
+      sportsHistory,
+      branch
     };
-
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(updatedData));
-      Alert.alert('Başarılı', 'Profil bilgileri güncellendi!');
-      navigation.navigate('Home');
+      await AsyncStorage.setItem('user', JSON.stringify(updatedUserData));
+      Alert.alert('Başarılı', 'Profil bilgileriniz kaydedildi!', [
+        { text: 'Tamam', onPress: () => navigation.navigate('Home') }
+      ]);
     } catch (error) {
-      Alert.alert('Hata', 'Bilgiler güncellenirken bir hata oluştu.');
+      Alert.alert('Hata', 'Bilgiler kaydedilirken bir hata oluştu.');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.label}>Kullanıcı Adı</Text>
       <TextInput
         value={newUsername}
@@ -61,18 +71,57 @@ const ProfileScreen = ({ navigation, route }: any) => {
         onChangeText={setNewLastname}
         style={styles.input}
       />
+      <Text style={styles.label}>Yaş</Text>
+      <TextInput
+        value={age}
+        onChangeText={setAge}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+      <Text style={styles.label}>Boy (cm)</Text>
+      <TextInput
+        value={height}
+        onChangeText={setHeight}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+      <Text style={styles.label}>Kilo (kg)</Text>
+      <TextInput
+        value={weight}
+        onChangeText={setWeight}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+      <Text style={styles.label}>Vücut Kitle Endeksi (VKİ)</Text>
+      <TextInput
+        value={bmi}
+        editable={false}
+        style={[styles.input, styles.disabledInput]}
+      />
+      <Text style={styles.label}>Spor Geçmişi (yıl)</Text>
+      <TextInput
+        value={sportsHistory}
+        onChangeText={setSportsHistory}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+      <Text style={styles.label}>Branş</Text>
+      <TextInput
+        value={branch}
+        onChangeText={setBranch}
+        style={styles.input}
+      />
       <Button title="Kaydet" onPress={handleSave} color="#0066CC" />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#f5f5f5',
   },
   label: {
     fontSize: 16,
@@ -84,13 +133,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 40,
     padding: 10,
-    borderWidth: 1,
     borderColor: '#ddd',
+    borderWidth: 1,
     borderRadius: 5,
     backgroundColor: '#fff',
     marginBottom: 20,
     fontSize: 16,
     color: '#333',
+  },
+  disabledInput: {
+    backgroundColor: '#eee',
   },
 });
 

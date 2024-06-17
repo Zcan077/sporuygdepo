@@ -7,6 +7,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import HomeScreen from './screens/HomeScreen';
 import AddWorkoutScreen from './screens/AddWorkoutScreen';
 import WorkoutListScreen from './screens/WorkoutListScreen';
+import WorkoutDetailScreen from './screens/WorkoutDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="AddWorkout" component={AddWorkoutScreen} />
         <Stack.Screen name="WorkoutList" component={WorkoutListScreen} />
+        <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} options={{ title: 'Antreman Detayı' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
